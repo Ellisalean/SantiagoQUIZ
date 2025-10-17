@@ -1,0 +1,5 @@
+{
+  "name": "Quiz del Libro de Santiago",
+  "description": "Una aplicación de cuestionario interactivo, estilo diapositivas, sobre los capítulos del Libro de Santiago de la Biblia. Genera preguntas dinámicamente usando la API de Gemini y presenta una experiencia de aprendizaje visualmente atractiva.",
+  "requestFramePermissions": []
+}
