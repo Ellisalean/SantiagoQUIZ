@@ -20,8 +20,8 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({ chapter }) => {
         >
             <div className={`absolute inset-0 ${theme.bg} opacity-90 -z-10 rounded-2xl`}></div>
             <div className={`w-16 h-16 border-4 ${theme.accent} border-t-transparent rounded-full animate-spin mb-6`}></div>
-            <h2 className="text-3xl font-bold mb-2">Generando Quiz para el Capítulo {chapter}</h2>
-            <p className="text-lg opacity-80">Un momento, la IA está preparando tus preguntas...</p>
+            <h2 className="text-3xl font-bold mb-2">Quiz para el Capítulo {chapter}</h2>
+            <p className="text-lg opacity-80">Prepárate...</p>
         </div>
     );
 };
