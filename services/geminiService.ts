@@ -1,55 +1,28 @@
-
-import { GoogleGenAI, Type } from "@google/genai";
 import type { QuizData } from '../types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
-
-const quizSchema = {
-  type: Type.ARRAY,
-  items: {
-    type: Type.OBJECT,
-    properties: {
-      question: {
-        type: Type.STRING,
-        description: 'La pregunta del quiz, en español.',
-      },
-      options: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.STRING,
-        },
-        description: 'Un array de 4 posibles respuestas en string.',
-      },
-      correctAnswer: {
-        type: Type.STRING,
-        description: 'El texto exacto de la respuesta correcta de entre las opciones.',
-      },
-    },
-    required: ["question", "options", "correctAnswer"],
-  },
-};
-
 export const generateChapterQuiz = async (chapter: number): Promise<QuizData> => {
-    const prompt = `Crea un quiz de 10 preguntas de opción múltiple (4 opciones cada una) sobre el capítulo ${chapter} del libro de Santiago de la Biblia. Asegúrate de que las preguntas cubran diferentes temas del capítulo y varíen en dificultad. El idioma debe ser español.`;
-
     try {
-        const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: quizSchema,
+        // En lugar de llamar a Gemini directamente, llamamos a nuestra propia función de Netlify.
+        // La URL es relativa a la raíz del sitio.
+        const response = await fetch('/.netlify/functions/generate-quiz', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
             },
+            body: JSON.stringify({ chapter }),
         });
 
-        const jsonText = response.text.trim();
-        const quizData = JSON.parse(jsonText);
-        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `Error del servidor: ${response.statusText}`);
+        }
+
+        const quizData = await response.json();
+
         if (!Array.isArray(quizData) || quizData.length === 0) {
           throw new Error("La respuesta de la API no es un array de preguntas válido.");
         }
 
-        // Validate structure of first question as a sample
         const firstQuestion = quizData[0];
         if (!firstQuestion.question || !Array.isArray(firstQuestion.options) || !firstQuestion.correctAnswer) {
              throw new Error("La estructura de los datos de la pregunta es incorrecta.");
@@ -57,7 +30,7 @@ export const generateChapterQuiz = async (chapter: number): Promise<QuizData> =>
         
         return quizData as QuizData;
     } catch (error) {
-        console.error("Error al generar el quiz con Gemini:", error);
+        console.error("Error al llamar a la función de Netlify:", error);
         throw new Error("No se pudo generar el contenido del quiz.");
     }
 };
